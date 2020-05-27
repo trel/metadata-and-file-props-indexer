@@ -49,11 +49,6 @@ public class ElasticSearchMetadataService {
 		log.info("indexFileObject()");
 		String json = jsonUtils.jsonStringFromFileModel(fileObjectModel);
 
-		if (fileObjectModel.getSampleNameUnique().isEmpty()) {
-			log.error("cannot find sample name unique:{}", fileObjectModel);
-			return;
-		}
-
 		/*
 		 * formulate the call to ES
 		 */
@@ -61,7 +56,7 @@ public class ElasticSearchMetadataService {
 		StringBuilder sb = new StringBuilder();
 		sb.append(indexerConfiguration.getElasticSearchIndexPath());
 		sb.append("/");
-		sb.append(fileObjectModel.getSampleNameUnique());
+		sb.append(fileObjectModel.getAbsolutePath());
 		String esPath = sb.toString();
 		log.info("adding at es path:{}", esPath);
 

@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
  */
 
 @PropertySources({ @PropertySource(value = "classpath:testing.properties", ignoreResourceNotFound = true),
-		@PropertySource("file:///etc/irods-ext/samples-es.properties") })
+		@PropertySource("file:///etc/irods-ext/metadata-es.properties") })
 
 @Component
 public class IndexerConfiguration {
@@ -50,7 +50,7 @@ public class IndexerConfiguration {
 	private String scanRootDir;
 
 	@Value("${indexer.name}")
-	private String indexerName = "projects-es";
+	private String indexerName = "metadata-es";
 
 	@Value("${es.protocol}")
 	private String elasticSearchProtocol;

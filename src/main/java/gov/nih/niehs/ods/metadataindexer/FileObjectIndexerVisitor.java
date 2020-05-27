@@ -52,7 +52,30 @@ public class FileObjectIndexerVisitor extends AbstractIndexerVisitor {
 	@Override
 	public boolean visitEnterWithMetadata(HierComposite node, MetadataRollup metadataRollup) {
 
+		log.info("visitEnterWithMetadata()");
 		IRODSFileImpl coll = (IRODSFileImpl) node;
+		log.info("coll:{}", coll);
+		FileObjectModel model = new FileObjectModel();
+		model.setAbsolutePath(node.getAbsolutePath());
+		model.setDataSize(0);
+		model.setFile(false);
+		model.setFileName(node.getName());
+		model.setLastModifiedDate(format1.format(new Date(coll.lastModified())));
+
+		List<MetaDataAndDomainData> currMetadata = metadataRollup.getMetadata().peek();
+		log.debug("collection metadata:{}", currMetadata);
+
+		MetadataEntry metadataEntry = null;
+		for (MetaDataAndDomainData avu : currMetadata) {
+			metadataEntry = new MetadataEntry();
+			metadataEntry.setAttribute(avu.getAvuAttribute());
+			metadataEntry.setValue(avu.getAvuValue());
+			metadataEntry.setUnit(avu.getAvuUnit());
+			model.getMetadataEntries().add(metadataEntry);
+		}
+
+		this.elasticSearchMetadataService.indexFileObject(model);
+
 		return true;
 	}
 
@@ -66,25 +89,29 @@ public class FileObjectIndexerVisitor extends AbstractIndexerVisitor {
 	@Override
 	public boolean visitWithMetadata(HierLeaf node, MetadataRollup metadataRollup) {
 
-		List<MetaDataAndDomainData> currMetadata = metadataRollup.getMetadata().peek();
-		log.debug("leaf metadata:{}", currMetadata);
+		log.info("visitEnterWithMetadata()");
 		IRODSFileImpl file = (IRODSFileImpl) node;
+		log.info("file:{}", file);
+		FileObjectModel model = new FileObjectModel();
+		model.setAbsolutePath(node.getAbsolutePath());
+		model.setDataSize(file.length());
+		model.setFile(true);
+		model.setFileName(node.getName());
+		model.setLastModifiedDate(format1.format(new Date(file.lastModified())));
 
+		List<MetaDataAndDomainData> currMetadata = metadataRollup.getMetadata().peek();
+		log.debug("file metadata:{}", currMetadata);
+
+		MetadataEntry metadataEntry = null;
 		for (MetaDataAndDomainData avu : currMetadata) {
-
+			metadataEntry = new MetadataEntry();
+			metadataEntry.setAttribute(avu.getAvuAttribute());
+			metadataEntry.setValue(avu.getAvuValue());
+			metadataEntry.setUnit(avu.getAvuUnit());
+			model.getMetadataEntries().add(metadataEntry);
 		}
 
-		StringBuffer sb = new StringBuffer();
-		sb.append(indexerConfiguration.getUrlPrefix());
-		sb.append(file.getAbsolutePath());
-		sampleModel.setUrl(sb.toString());
-		sampleModel.setRunId(runId);
-
-		log.debug("indexing:{}", sampleModel);
-
-		this.elasticSearchMetadataService.indexFileObject(sampleModel);
-
-		return true;
+		this.elasticSearchMetadataService.indexFileObject(model);
 
 	}
 
