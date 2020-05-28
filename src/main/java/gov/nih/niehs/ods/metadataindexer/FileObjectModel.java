@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonRootName;
 
 /**
  * Jackson object representing a file or collection and its metadata in ES
@@ -14,6 +15,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @author conwaymc
  *
  */
+@JsonRootName(value = "IrodsFileObject")
 public class FileObjectModel {
 
 	@JsonProperty("url")

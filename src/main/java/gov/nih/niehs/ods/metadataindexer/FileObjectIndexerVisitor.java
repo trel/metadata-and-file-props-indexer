@@ -60,7 +60,7 @@ public class FileObjectIndexerVisitor extends AbstractIndexerVisitor {
 		model.setDataSize(0);
 		model.setFile(false);
 		model.setFileName(node.getName());
-		model.setLastModifiedDate(format1.format(new Date(coll.lastModified())));
+		model.setLastModifiedDate(String.valueOf(coll.lastModified()));
 
 		List<MetaDataAndDomainData> currMetadata = metadataRollup.getMetadata().peek();
 		log.debug("collection metadata:{}", currMetadata);
