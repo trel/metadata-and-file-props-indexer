@@ -109,7 +109,7 @@ public class FileObjectIndexerVisitor extends AbstractIndexerVisitor {
 		model.setDataSize(file.length());
 		model.setFile(true);
 		model.setFileName(node.getName());
-		model.setLastModifiedDate(format1.format(new Date(file.lastModified())));
+		model.setLastModifiedDate(String.valueOf(file.lastModified()));
 		model.setMimeType("");
 		model.setParentPath(file.getParent());
 		model.setUrl(generateUrl(file.getAbsolutePath()));
