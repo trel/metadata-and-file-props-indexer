@@ -220,7 +220,7 @@
 									es.host=${es.host}
 									es.protocol=${es.protocol}
 									es.port=${es.port}
-									es.path=${es.path}
+									es.path=/metadata/doc
 								</echo>
 							</tasks>
 						</configuration>

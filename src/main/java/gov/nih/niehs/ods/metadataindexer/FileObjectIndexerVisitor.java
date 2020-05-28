@@ -14,6 +14,7 @@ import org.irods.jargon.core.exception.JargonRuntimeException;
 import org.irods.jargon.core.pub.IRODSAccessObjectFactory;
 import org.irods.jargon.core.pub.io.IRODSFileImpl;
 import org.irods.jargon.core.query.MetaDataAndDomainData;
+import org.irods.jargon.core.utils.MiscIRODSUtils;
 import org.irods.jargon.datautils.indexer.AbstractIndexerVisitor;
 import org.irods.jargon.datautils.indexer.MetadataRollup;
 import org.irods.jargon.datautils.visitor.HierComposite;
@@ -61,6 +62,10 @@ public class FileObjectIndexerVisitor extends AbstractIndexerVisitor {
 		model.setFile(false);
 		model.setFileName(node.getName());
 		model.setLastModifiedDate(String.valueOf(coll.lastModified()));
+		model.setMimeType("");
+		model.setParentPath(coll.getParent());
+		model.setUrl(generateUrl(coll.getAbsolutePath()));
+		model.setZoneName(MiscIRODSUtils.getZoneInPath(node.getAbsolutePath()));
 
 		List<MetaDataAndDomainData> currMetadata = metadataRollup.getMetadata().peek();
 		log.debug("collection metadata:{}", currMetadata);
@@ -86,6 +91,13 @@ public class FileObjectIndexerVisitor extends AbstractIndexerVisitor {
 
 	}
 
+	private String generateUrl(final String absolutePath) {
+		StringBuilder sb = new StringBuilder();
+		sb.append(this.getIndexerConfiguration().getUrlPrefix());
+		sb.append(absolutePath);
+		return sb.toString();
+	}
+
 	@Override
 	public boolean visitWithMetadata(HierLeaf node, MetadataRollup metadataRollup) {
 
@@ -98,6 +110,10 @@ public class FileObjectIndexerVisitor extends AbstractIndexerVisitor {
 		model.setFile(true);
 		model.setFileName(node.getName());
 		model.setLastModifiedDate(format1.format(new Date(file.lastModified())));
+		model.setMimeType("");
+		model.setParentPath(file.getParent());
+		model.setUrl(generateUrl(file.getAbsolutePath()));
+		model.setZoneName(MiscIRODSUtils.getZoneInPath(node.getAbsolutePath()));
 
 		List<MetaDataAndDomainData> currMetadata = metadataRollup.getMetadata().peek();
 		log.debug("file metadata:{}", currMetadata);
@@ -112,6 +128,7 @@ public class FileObjectIndexerVisitor extends AbstractIndexerVisitor {
 		}
 
 		this.elasticSearchMetadataService.indexFileObject(model);
+		return true;
 
 	}
 
