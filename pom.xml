@@ -4,18 +4,29 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>gov.nih.niehs.ods</groupId>
-	<artifactId>metadata-indexer</artifactId>
-	<name>metadata-indexer</name>
+	<artifactId>metadata-indexer-es</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-
+	<name>Elastic Search metadata crawler</name>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>2.0.1.RELEASE</version>
+	</parent>
 	<properties>
+		<java.version>1.8</java.version>
+		<maven.compiler.source>${java.version}</maven.compiler.source>
+		<maven.compiler.target>${java.version}</maven.compiler.target>
+		<jargon.version>4.3.2.0-SNAPSHOT</jargon.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<spring.core.version>3.0.5.RELEASE</spring.core.version>
+		<spring.core.version>4.2.0.RELEASE</spring.core.version>
 		<sl4j.version>1.6.6</sl4j.version>
 		<log4j.version>1.2.16</log4j.version>
-		<jargon.version>4.3.2.0-SNAPSHOT</jargon.version>
-		<java.version>11</java.version>
+		<commons.io.version>2.4</commons.io.version>
+		<commons.lang.version>2.6</commons.lang.version>
+		<commons.collections.version>3.2.1</commons.collections.version>
+		<postgresql.version>8.4-702.jdbc4</postgresql.version>
 	</properties>
+
 	<repositories>
 		<repository>
 			<id>dice.repository snaps</id>
@@ -38,24 +49,34 @@
 				<enabled>true</enabled>
 			</releases>
 			<snapshots>
-				<enabled>false</enabled>
+				<enabled>true</enabled>
 				<updatePolicy>always</updatePolicy>
 				<checksumPolicy>warn</checksumPolicy>
 			</snapshots>
 		</repository>
+
 	</repositories>
 	<dependencies>
 		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-parent</artifactId>
-			<version>2.3.0.RELEASE</version>
-			<type>pom</type>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter</artifactId>
-			<version>2.3.0.RELEASE</version>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-core</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-context</artifactId>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/commons-dbcp/commons-dbcp -->
+		<dependency>
+			<groupId>commons-dbcp</groupId>
+			<artifactId>commons-dbcp</artifactId>
+			<version>1.4</version>
+		</dependency>
+
 		<dependency>
 			<groupId>org.irods.jargon</groupId>
 			<artifactId>jargon-core</artifactId>
@@ -66,11 +87,27 @@
 			<artifactId>jargon-data-utils</artifactId>
 			<version>${jargon.version}</version>
 		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/org.mockito/mockito-core -->
 		<dependency>
 			<groupId>org.mockito</groupId>
 			<artifactId>mockito-core</artifactId>
-			<version>3.3.3</version>
+			<version>1.10.19</version>
 			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>ch.qos.logback</groupId>
+					<artifactId>logback-classic</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.slf4j</groupId>
+					<artifactId>log4j-over-slf4j</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>log4j</groupId>
@@ -85,40 +122,22 @@
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-log4j12</artifactId>
-			<version>${sl4j.version}</version><!--$NO-MVN-MAN-VER$ -->
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/org.elasticsearch.client/elasticsearch-rest-high-level-client -->
 		<dependency>
 			<groupId>org.elasticsearch.client</groupId>
-			<artifactId>elasticsearch-rest-high-level-client</artifactId>
-			<version>7.7.0</version>
+			<artifactId>elasticsearch-rest-client</artifactId>
+			<version>7.0.0</version>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/org.elasticsearch/elasticsearch-core -->
 		<dependency>
-			<groupId>org.elasticsearch</groupId>
-			<artifactId>elasticsearch-core</artifactId>
-			<version>7.6.2</version>
+			<groupId>net.bytebuddy</groupId>
+			<artifactId>byte-buddy</artifactId>
+			<version>1.8.11</version>
 		</dependency>
 	</dependencies>
 	<build>
 		<sourceDirectory>src/main/java</sourceDirectory>
 		<finalName>es-metadata-indexer</finalName>
 		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<configuration>
-					<source>11</source>
-					<target>11</target>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>versions-maven-plugin</artifactId>
-				<configuration>
-					<generateBackupPoms>false</generateBackupPoms>
-				</configuration>
-			</plugin>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
@@ -171,38 +190,6 @@
 									test.resource.group=${jargon.test.resource.group}
 									test.irods.userDN=${jargon.test.irods.userDN}
 									test.irods.scratch.subdir=${jargon.test.irods.scratch.subdir}
-									test.option.exercise.remoteexecstream=${jargon.test.option.exercise.remoteexecstream}
-									test.option.eirods=${test.option.eirods}
-									test.option.exercise.audit=${jargon.test.option.exercise.audit}
-									test.option.exercise.workflow=${jargon.test.option.exercise.workflow}
-									test.option.exercise.filesystem.mount=${jargon.test.option.exercise.filesystem.mount}
-									test.option.exercise.filesystem.mount.local=${jargon.test.option.exercise.filesystem.mount.local}
-									test.option.distributed.resources=${test.option.distributed.resources}
-									test.option.registration=${test.option.registration}
-									test.option.strictACL=${test.option.strictACL}
-									test.option.federated.zone=${test.option.federated.zone}
-									test.option.kerberos=${test.option.kerberos}
-									test.option.pam=${test.option.pam}
-									test.option.ssl.configured=${test.option.ssl.configured}
-									jargon.test.pam.user=${jargon.test.pam.user}
-									jargon.test.pam.password=${jargon.test.pam.password}
-									test.federated.irods.admin=${jargon.test.federated.irods.admin}
-									test.federated.irods.admin.password=${jargon.test.federated.irods.admin.password}
-									test.federated.irods.user=${jargon.test.federated.irods.user}
-									test.federated.irods.password=${jargon.test.federated.irods.password}
-									test.federated.irods.resource=${jargon.test.federated.irods.resource}
-									test.federated.irods.host=${jargon.test.federated.irods.host}
-									test.federated.irods.port=${jargon.test.federated.irods.port}
-									test.federated.irods.zone=${jargon.test.federated.irods.zone}
-									test.option.gsi=${test.option.gsi}
-									test.option.gsi.host=${test.option.gsi.host}
-									test.option.gsi.port=${test.option.gsi.port}
-									test.option.gsi.zone=${test.option.gsi.zone}
-									test.option.gsi.dn=${test.option.gsi.dn}
-									test.option.gsi.user=${test.option.gsi.user}
-									test.option.gsi.file=${test.option.gsi.file}
-									test.option.mount.basedir=${test.option.mount.basedir}
-									test.option.python=${test.option.python}
 									irods.host=${jargon.test.irods.host}
 									irods.port=${jargon.test.irods.port}
 									irods.zone=${jargon.test.irods.zone}
@@ -212,11 +199,11 @@
 									web.interface.url=https://localhost:8080/metalnx/collectionInfo?path=
 									ssl.negotiation.policy=CS_NEG_REFUSE
 									irods.root.dir=/tempZone/home/test1
-									indexer.name=es-projects
+									indexer.name=es-metadata
 									es.host=${es.host}
 									es.protocol=${es.protocol}
 									es.port=${es.port}
-									es.path=/metadata/doc
+									es.path=/metadata/_doc
 								</echo>
 							</tasks>
 						</configuration>
@@ -225,6 +212,13 @@
 						</goals>
 					</execution>
 				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<debug>true</debug>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>

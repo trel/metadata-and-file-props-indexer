@@ -65,6 +65,7 @@ public class FileObjectIndexerVisitorTest {
 		String testSampleUnique = "apple-pie-abcd1";
 
 		IRODSAccount irodsAccount = testingPropertiesHelper.buildIRODSAccountFromTestProperties(testingProperties);
+
 		IndexerConfiguration config = new IndexerConfiguration();
 		config.setIndexerName("testIndexRunFolder");
 		config.setUrlPrefix(testingProperties.getProperty("web.interface.url"));

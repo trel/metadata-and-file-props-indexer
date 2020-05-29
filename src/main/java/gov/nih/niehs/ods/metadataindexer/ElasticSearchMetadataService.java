@@ -8,6 +8,7 @@ import java.io.IOException;
 import javax.annotation.PostConstruct;
 
 import org.apache.http.HttpHost;
+import org.bouncycastle.util.encoders.Base64;
 import org.elasticsearch.client.Request;
 import org.elasticsearch.client.Response;
 import org.elasticsearch.client.RestClient;
@@ -55,12 +56,14 @@ public class ElasticSearchMetadataService {
 
 		StringBuilder sb = new StringBuilder();
 		sb.append(indexerConfiguration.getElasticSearchIndexPath());
+
+		byte[] bytesEncoded = Base64.encode(fileObjectModel.getAbsolutePath().getBytes());
 		sb.append("/");
-		sb.append(fileObjectModel.getAbsolutePath());
+		sb.append(new String(bytesEncoded));
 		String esPath = sb.toString();
 		log.info("adding at es path:{}", esPath);
 
-		Request request = new Request("PUT", esPath);
+		Request request = new Request("POST", esPath);
 		request.setJsonEntity(json);
 		try {
 			Response response = restClient.performRequest(request);
