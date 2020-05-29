@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
  */
 
 @PropertySources({ @PropertySource(value = "classpath:testing.properties", ignoreResourceNotFound = true),
-		@PropertySource("file:///etc/irods-ext/metadata-es.properties") })
+		@PropertySource(value = "file:///etc/irods-ext/metadata-es.properties", ignoreResourceNotFound = true) })
 
 @Component
 public class IndexerConfiguration {
