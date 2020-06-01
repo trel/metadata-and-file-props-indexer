@@ -44,9 +44,10 @@ public class IndexerApp implements CommandLineRunner {
 	}
 
 	// Only if I implement the CommandLineRunner interface...
+	@Override
 	public void run(String... args) throws Exception {
 		// host, port, zone, user, password, url prefix, dbhost, dbport, dbuid, dbpasswd
-		log.info("Start of thunderstone scan...");
+		log.info("Start of metadata indexing scan...");
 		SettableJargonPropertiesMBean settableJargonProperties = new SettableJargonProperties(
 				irodsAccessObjectFactory.getJargonProperties());
 		settableJargonProperties.setNegotiationPolicy(SslNegotiationPolicy.CS_NEG_REFUSE);
